@@ -11,23 +11,21 @@ public class Server {
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             System.out.println("Сервер стартовал");
 
-            Socket clientSocket = serverSocket.accept();
-            System.out.println("New connection accepted " + clientSocket.getInetAddress() + ":" + clientSocket.getPort());
+            while (true) {
+                try (Socket clientSocket = serverSocket.accept();
+                     PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+                     BufferedReader in = new BufferedReader(
+                             new InputStreamReader(clientSocket.getInputStream()))) {
 
-            PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+                    System.out.println("New connection accepted "
+                            + clientSocket.getInetAddress() + ":" + clientSocket.getPort());
 
-            BufferedReader in = new BufferedReader(
-                    new InputStreamReader(clientSocket.getInputStream()));
+                    String name = in.readLine();
+                    System.out.println("Получено имя: " + name);
 
-
-            String name = in.readLine();
-            System.out.println("Получено имя: " + name);
-
-            out.println(String.format("Hi, %s, your port is %d", name, clientSocket.getPort()));
-
-
-        } catch (IOException e) {
-            throw new RuntimeException();
+                    out.println(String.format("Hi, %s, your port is %d", name, clientSocket.getPort()));
+                }
+            }
         }
     }
 }
